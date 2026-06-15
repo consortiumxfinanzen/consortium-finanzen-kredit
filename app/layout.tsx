@@ -14,7 +14,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {verification: {
-  google: '6do8zZWUjTn1lS'
+  google: '6do8zzWUjTn1ISDnVV2_OuqgSYO5xs7pFHOyyTFyOW8'
 },
   title: {
     default: 'Consortium Finanzen Kredit | Unabhängiger Kreditvermittler',
