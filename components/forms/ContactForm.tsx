@@ -4,6 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void
+  }
+}
+
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
 export default function ContactForm() {
@@ -38,6 +44,11 @@ export default function ContactForm() {
       const json = await res.json()
       if (json.success) {
         setStatus('success')
+        window.gtag?.('event', 'form_submit', {
+          event_category: 'financement',
+          event_label: form.loanType,
+          form_name: 'contact_financement',
+        })
         setForm({ firstName: '', lastName: '', email: '', phone: '', country: '', loanType: '', amount: '', message: '', consent: false })
       } else {
         setStatus('error')

@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import CookieBanner from '@/components/layout/CookieBanner'
 import { LanguageProvider } from '@/context/LanguageContext'
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics'
 
 const inter = Inter({
   subsets: ['latin', 'latin-ext'],
@@ -29,6 +30,7 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
   return (
     <html lang="de" className={inter.variable}>
       <body className="font-sans text-slate-800 bg-white">
@@ -41,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <CookieBanner />
         </LanguageProvider>
+        {gaId && <GoogleAnalytics measurementId={gaId} />}
       </body>
     </html>
   )
