@@ -2,34 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-
-const LOAN_TYPES = [
-  'Prêt immobilier',
-  'Prêt personnel',
-  'Crédit à la consommation',
-  'Regroupement de crédits',
-  'Prêt professionnel',
-  'Financement PME',
-  'Investissement immobilier',
-  'Je ne sais pas encore',
-]
-
-const COUNTRIES = [
-  { code: 'DE', label: '🇩🇪 Allemagne' },
-  { code: 'FR', label: '🇫🇷 France' },
-  { code: 'BE', label: '🇧🇪 Belgique' },
-  { code: 'LU', label: '🇱🇺 Luxembourg' },
-  { code: 'NL', label: '🇳🇱 Pays-Bas' },
-  { code: 'CH', label: '🇨🇭 Suisse' },
-  { code: 'AT', label: '🇦🇹 Autriche' },
-  { code: 'ES', label: '🇪🇸 Espagne' },
-  { code: 'IT', label: '🇮🇹 Italie' },
-  { code: 'OTHER', label: 'Autre pays' },
-]
+import { useLanguage } from '@/context/LanguageContext'
 
 type Status = 'idle' | 'sending' | 'success' | 'error'
 
 export default function ContactForm() {
+  const { t } = useLanguage()
+  const f = t.form
+
   const [form, setForm] = useState({
     firstName: '', lastName: '', email: '', phone: '',
     country: '', loanType: '', amount: '', message: '', consent: false,
@@ -50,7 +30,7 @@ export default function ContactForm() {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           access_key: 'dba3dae4-d0ea-4540-a76b-3502aaad1b77',
-          subject: `Demande de financement — ${form.loanType}`,
+          subject: `Finanzierungsanfrage — ${form.loanType}`,
           from_name: `${form.firstName} ${form.lastName}`,
           ...form,
         }),
@@ -75,79 +55,77 @@ export default function ContactForm() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-primary-950 mb-3">Demande envoyée !</h2>
-        <p className="text-slate-500 mb-8">Un conseiller vous contactera sous 24h (prêts personnels) ou 72h (autres financements).</p>
+        <h2 className="text-2xl font-bold text-primary-950 mb-3">{f.successTitle}</h2>
+        <p className="text-slate-500 mb-8">{f.successText}</p>
         <Link href="/" className="inline-flex items-center justify-center bg-primary-950 text-white font-semibold px-6 py-3 rounded-xl hover:bg-primary-900 transition-colors">
-          Retour à l'accueil
+          {f.successBack}
         </Link>
       </div>
     )
   }
 
   const field = 'w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition-all text-slate-800 text-sm bg-white'
-  const req = <><span aria-hidden="true" className="text-red-500">*</span><span className="sr-only">(obligatoire)</span></>
+  const req = <><span aria-hidden="true" className="text-red-500">*</span><span className="sr-only">(required)</span></>
   const canSubmit = form.consent && status !== 'sending'
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200">
       <div className="p-8 sm:p-10">
-        <form onSubmit={onSubmit} noValidate aria-label="Formulaire de demande de financement">
+        <form onSubmit={onSubmit} noValidate aria-label={f.submit}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
             <div>
-              <label htmlFor="firstName" className="block text-sm font-semibold text-slate-700 mb-1.5">Prénom {req}</label>
+              <label htmlFor="firstName" className="block text-sm font-semibold text-slate-700 mb-1.5">{f.firstName} {req}</label>
               <input id="firstName" name="firstName" type="text" required value={form.firstName} onChange={onChange}
-                placeholder="Jean" className={field} />
+                placeholder={f.firstNamePh} className={field} />
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-semibold text-slate-700 mb-1.5">Nom {req}</label>
+              <label htmlFor="lastName" className="block text-sm font-semibold text-slate-700 mb-1.5">{f.lastName} {req}</label>
               <input id="lastName" name="lastName" type="text" required value={form.lastName} onChange={onChange}
-                placeholder="Dupont" className={field} />
+                placeholder={f.lastNamePh} className={field} />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-1.5">Email {req}</label>
+              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-1.5">{f.email} {req}</label>
               <input id="email" name="email" type="email" required value={form.email} onChange={onChange}
-                placeholder="jean.dupont@email.com" className={field} />
+                placeholder={f.emailPh} className={field} />
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-1.5">Téléphone</label>
+              <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-1.5">{f.phone}</label>
               <input id="phone" name="phone" type="tel" value={form.phone} onChange={onChange}
-                placeholder="+33 6 00 00 00 00" className={field} />
+                placeholder={f.phonePh} className={field} />
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="country" className="block text-sm font-semibold text-slate-700 mb-1.5">Pays de résidence {req}</label>
-              <select id="country" name="country" required value={form.country} onChange={onChange}
-                className={field}>
-                <option value="">Sélectionnez votre pays</option>
-                {COUNTRIES.map(({ code, label }) => (
+              <label htmlFor="country" className="block text-sm font-semibold text-slate-700 mb-1.5">{f.country} {req}</label>
+              <select id="country" name="country" required value={form.country} onChange={onChange} className={field}>
+                <option value="">{f.selectCountry}</option>
+                {f.countries.map(({ code, label }) => (
                   <option key={code} value={code}>{label}</option>
                 ))}
               </select>
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="loanType" className="block text-sm font-semibold text-slate-700 mb-1.5">Type de financement {req}</label>
-              <select id="loanType" name="loanType" required value={form.loanType} onChange={onChange}
-                className={field}>
-                <option value="">Sélectionnez un type de financement</option>
-                {LOAN_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              <label htmlFor="loanType" className="block text-sm font-semibold text-slate-700 mb-1.5">{f.loanType} {req}</label>
+              <select id="loanType" name="loanType" required value={form.loanType} onChange={onChange} className={field}>
+                <option value="">{f.selectLoanType}</option>
+                {f.loanTypes.map(type => <option key={type} value={type}>{type}</option>)}
               </select>
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="amount" className="block text-sm font-semibold text-slate-700 mb-1.5">Montant souhaité (€)</label>
+              <label htmlFor="amount" className="block text-sm font-semibold text-slate-700 mb-1.5">{f.amount}</label>
               <input id="amount" name="amount" type="text" value={form.amount} onChange={onChange}
-                placeholder="Ex : 200 000 €" className={field} />
+                placeholder={f.amountPlaceholder} className={field} />
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="message" className="block text-sm font-semibold text-slate-700 mb-1.5">Décrivez votre projet</label>
+              <label htmlFor="message" className="block text-sm font-semibold text-slate-700 mb-1.5">{f.message}</label>
               <textarea id="message" name="message" rows={4} value={form.message} onChange={onChange}
-                placeholder="Votre projet, votre situation, vos questions..."
+                placeholder={f.msgPlaceholder}
                 className={`${field} resize-none`} />
             </div>
 
@@ -157,12 +135,11 @@ export default function ContactForm() {
                   aria-describedby="consent-desc"
                   className="mt-0.5 w-4 h-4 rounded border-slate-300 text-primary-700 focus:ring-primary-500" />
                 <span id="consent-desc" className="text-xs text-slate-500 leading-relaxed">
-                  J'accepte que Consortium Finanzen Kredit collecte et traite mes données pour traiter ma demande,
-                  conformément à la{' '}
+                  {f.consentPrefix}
                   <Link href="/legal/politique-confidentialite" className="text-primary-700 underline hover:text-primary-900">
-                    politique de confidentialité
-                  </Link>.{' '}
-                  Je dispose d'un droit d'accès, de rectification et de suppression de mes données.
+                    {f.consentLink}
+                  </Link>
+                  {f.consentSuffix}
                   <span aria-hidden="true" className="text-red-500"> *</span>
                 </span>
               </label>
@@ -171,17 +148,15 @@ export default function ContactForm() {
 
           {status === 'error' && (
             <div role="alert" className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
-              Une erreur est survenue. Veuillez réessayer ou nous contacter directement par email.
+              {f.errorMsg}
             </div>
           )}
 
           <button type="submit" disabled={!canSubmit}
             className="mt-6 w-full bg-primary-950 hover:bg-primary-900 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl text-base transition-colors">
-            {status === 'sending' ? 'Envoi en cours…' : 'Envoyer ma demande'}
+            {status === 'sending' ? f.sending : f.submit}
           </button>
-          <p className="text-xs text-slate-400 text-center mt-3">
-            Prêts personnels : réponse sous 24h. Autres financements : sous 72h. Consultation gratuite.
-          </p>
+          <p className="text-xs text-slate-400 text-center mt-3">{f.footerNote}</p>
         </form>
       </div>
     </div>
